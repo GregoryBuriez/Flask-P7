@@ -1,1 +1,2 @@
 web: gunicorn app:app
+init: FLASK-APP=run.py flask init_db
