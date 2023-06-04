@@ -33,7 +33,7 @@ def predict():
             prediction = model.predict([client_features])[0]
             
             # Afficher le résultat de la prédiction dans le template
-            return jsonify({'predictions': [prediction]})
+            return jsonify({'prediction': prediction})
         else:
             # Afficher un message d'erreur si l'identifiant du client n'est pas trouvé
             return render_template('result.html', error="Identifiant non reconnu")
