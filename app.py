@@ -19,7 +19,10 @@ def home():
 def predict():
     if request.method == 'POST':
         # Obtenir l'identifiant du client à partir du formulaire
-        client_id = int(request.get_json()['client_id'])
+        if request.content_type == 'application/json':
+            client_id = int(request.get_json()['client_id'])
+        else:
+            client_id = int(request.form.get('client_id'))
         
         # Vérifier si l'identifiant du client est présent dans le dataframe
         if client_id in df['SK_ID_CURR'].values:
