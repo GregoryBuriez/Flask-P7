@@ -19,10 +19,7 @@ def home():
 def predict():
     if request.method == 'POST':
         # Obtenir l'identifiant du client à partir du formulaire
-        if request.content_type == 'application/json':
-            client_id = int(request.get_json()['client_id'])
-        else:
-            client_id = int(request.form.get('client_id'))
+        client_id = int(request.form['client_id'])
         
         # Vérifier si l'identifiant du client est présent dans le dataframe
         if client_id in df['SK_ID_CURR'].values:
@@ -33,7 +30,7 @@ def predict():
             prediction = model.predict([client_features])[0]
             
             # Afficher le résultat de la prédiction dans le template
-            return jsonify({'prediction': prediction})
+            return render_template('result.html', prediction=prediction)
         else:
             # Afficher un message d'erreur si l'identifiant du client n'est pas trouvé
             return render_template('result.html', error="Identifiant non reconnu")
