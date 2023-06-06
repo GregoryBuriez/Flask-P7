@@ -1,6 +1,7 @@
 from flask import Flask, jsonify, render_template, request
 import pandas as pd
 import pickle
+import json
 
 app = Flask(__name__)
 
@@ -29,8 +30,16 @@ def predict():
             # Faire la prédiction
             prediction = model.predict([client_features])[0]
             
-            # Afficher le résultat de la prédiction dans le template
-            return render_template('result.html', prediction=prediction)
+            # Vérifier le paramètre 'format' dans la requête
+            output_format = request.args.get('format')
+            
+            # Si le paramètre 'format' est défini sur 'json', retourner le résultat au format JSON
+            if output_format == 'json':
+                result = {'prediction': prediction}
+                return jsonify(result)
+            else:
+                # Afficher le résultat de la prédiction dans le template
+                return render_template('result.html', prediction=prediction)
         else:
             # Afficher un message d'erreur si l'identifiant du client n'est pas trouvé
             return render_template('result.html', error="Identifiant non reconnu")
@@ -38,4 +47,4 @@ def predict():
     return render_template('index.html')
 
 if __name__ == '__main__':
-    app.run()
+    app.run(port=8000)
