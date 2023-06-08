@@ -55,7 +55,7 @@ def api_predict():
             prediction = model.predict([client_features])[0]
 
             # prédiction en résultat
-            result = {'prediction': prediction}
+            result = {'prediction': int(prediction)}
         else:
             # erreur en résultat
             result = {'error': "Identifiant non reconnu", 'prediction': None}
