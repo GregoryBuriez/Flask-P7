@@ -44,21 +44,28 @@ def predict():
 def api_predict():
     if request.method == 'POST':
         # Obtenir l'identifiant du client à partir du formulaire
-        client_id = int(request.form['client_id'])
+        client_id = request.form.get('client_id')
 
-        # Vérifier si l'identifiant du client est présent dans le dataframe
-        if client_id in df['SK_ID_CURR'].values:
-            # Obtenir les caractéristiques du client
-            client_features = df[df['SK_ID_CURR'] == client_id].values[0]
+        if client_id and client_id.isdigit():
+            # Convertir l'identifiant du client en entier
+            client_id = int(client_id)
 
-            # Faire la prédiction
-            prediction = model.predict([client_features])[0]
+            # Vérifier si l'identifiant du client est présent dans le dataframe
+            if client_id in df['SK_ID_CURR'].values:
+                # Obtenir les caractéristiques du client
+                client_features = df[df['SK_ID_CURR'] == client_id].values[0]
 
-            # prédiction en résultat
-            result = {'prediction': int(prediction)}
+                # Faire la prédiction
+                prediction = model.predict([client_features])[0]
+
+                # prédiction en résultat
+                result = {'prediction': int(prediction)}
+            else:
+                # erreur en résultat
+                result = {'error': "Identifiant non reconnu", 'prediction': None}
         else:
-            # erreur en résultat
-            result = {'error': "Identifiant non reconnu", 'prediction': None}
+            # erreur en résultat si l'identifiant du client est manquant ou non valide
+            result = {'error': "Identifiant non valide", 'prediction': None}
 
         # renvoyer le résultat
         return jsonify(result)
