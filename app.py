@@ -40,7 +40,7 @@ def predict():
     return render_template('index.html')
 
 # url résultats formulaire
-@app.route('/api/predict', methods=['GET', 'POST'])
+@app.route('/api/predict', methods=['POST'])
 def api_predict():
     if request.method == 'POST':
         # Obtenir l'identifiant du client à partir du formulaire
@@ -59,10 +59,11 @@ def api_predict():
         else:
             # erreur en résultat
             result = {'error': "Identifiant non reconnu", 'prediction': None}
+
         # renvoyer le résultat
         return jsonify(result)
     elif request.method == 'GET':
         return jsonify({'error': "Méthode non autorisée. Veuillez utiliser la méthode POST pour effectuer une prédiction."})
 
-if name == 'main':
+if __name__ == '__main__':
     app.run(port=8000)
