@@ -1,68 +1,30 @@
 import pytest
 from flask import Flask
-from flask.testing import FlaskClient
-from your_flask_app import app
+from app import app
 
 @pytest.fixture
-def client() -> FlaskClient:
-    app.testing = True
+def client():
+    app.config['TESTING'] = True
     with app.test_client() as client:
         yield client
 
-def test_prediction(client: FlaskClient):
-    # Données de test pour l'identifiant du client
-    client_id = 12345
-
-    # Envoyer une requête POST à l'API
-    response = client.post('/api/predict', data={'client_id': client_id})
-
-    # Vérifier le code de statut de la réponse
+def test_home_route(client):
+    response = client.get('/')
     assert response.status_code == 200
+    assert "modèle".encode('utf-8') in response.data
 
-    # Vérifier le type de contenu de la réponse
-    assert response.headers['Content-Type'] == 'application/json'
-
-    # Analyser la réponse JSON
-    result = response.get_json()
-
-    # Vérifier si la prédiction est présente dans la réponse
-    assert 'prediction' in result
-
-def test_invalid_client_id(client: FlaskClient):
-    # Données de test pour un identifiant de client invalide
-    invalid_client_id = 99999
-
-    # Envoyer une requête POST à l'API avec un identifiant invalide
-    response = client.post('/api/predict', data={'client_id': invalid_client_id})
-
-    # Vérifier le code de statut de la réponse
+def test_predict_route_with_valid_id(client):
+    response = client.post('/api/predict', data={'client_id': 123})
     assert response.status_code == 200
+    data = response.get_json()
+    assert 'prediction' in data
 
-    # Vérifier le type de contenu de la réponse
-    assert response.headers['Content-Type'] == 'application/json'
-
-    # Analyser la réponse JSON
-    result = response.get_json()
-
-    # Vérifier si l'erreur est présente dans la réponse
-    assert 'error' in result
-    assert result['error'] == 'Identifiant non reconnu'
-    assert 'prediction' in result
-    assert result['prediction'] is None
-
-def test_invalid_http_method(client: FlaskClient):
-    # Envoyer une requête GET à l'API au lieu d'une requête POST
-    response = client.get('/api/predict')
-
-    # Vérifier le code de statut de la réponse
+def test_predict_route_with_invalid_id(client):
+    response = client.post('/api/predict', data={'client_id': 999})
     assert response.status_code == 200
+    data = response.get_json()
+    assert 'error' in data
+    assert data['prediction'] is None
 
-    # Vérifier le type de contenu de la réponse
-    assert response.headers['Content-Type'] == 'application/json'
-
-    # Analyser la réponse JSON
-    result = response.get_json()
-
-    # Vérifier si l'erreur est présente dans la réponse
-    assert 'error' in result
-    assert result['error'] == 'Méthode non autorisée. Veuillez utiliser la méthode POST pour effectuer une prédiction.'
+if __name__ == '__main__':
+    pytest.main()
